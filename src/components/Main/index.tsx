@@ -314,6 +314,9 @@ const Main: React.FC = () => {
 
                     <Select value={constraint.signal} onChange={(e) => handleChangeConstraint({ type: 'signal', value: e.target.value, constraintIndex: cIndex })} >
                       <option>{'<='}</option>
+                      {/*
+                        Greater than and equal disabled due to unexpected behavior
+                      */}
                     </Select>
 
                     <Input

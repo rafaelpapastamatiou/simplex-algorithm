@@ -31,8 +31,10 @@ export default class Tableau implements ITableauConstructorProps {
 
     const matrix = []
 
+    // FILL Z LINE OF MATRIX WITH OBJECTIVE FUNCTION
     matrix[0] = [...objective.variables.map(v => v.value as number * -1)]
 
+    // FILL WITH THE CONSTRAINTS
     for (const [constraintIndex, constraint] of constraints.entries()) {
       matrix[constraintIndex + 1] =
         [
@@ -57,7 +59,7 @@ export default class Tableau implements ITableauConstructorProps {
         if (constraintIndex === addToConstraintIndex) {
           matrix[addToConstraintIndex + 1].push(constraint.signal === '<=' ? 1 : constraint.signal === '>=' ? -1 : 0)
           //
-          // TODO not working as expected if greater than
+          // TODO not working as expected if greater than - disabled
           if (constraint.signal === '>=') {
             this.variables.push(`x${parseInt(lastVar.slice(1)) + 2}`)
             matrix[addToConstraintIndex + 1].push(1)
@@ -71,8 +73,10 @@ export default class Tableau implements ITableauConstructorProps {
       }
     }
 
+    // ADD 0 TO INDEPENDENT TERM OF Z LINE
     matrix[0] = [...matrix[0], 0]
 
+    // ADD THE CONSTRAINTS INDEPENDENT TERMS
     for (const [constraintIndex, constraint] of constraints.entries()) {
       matrix[constraintIndex + 1] =
         [
@@ -81,6 +85,7 @@ export default class Tableau implements ITableauConstructorProps {
         ]
     }
 
+    // ADD b AS INDEPENDENT TERM VARIABLE NAME
     this.variables = [...this.variables, 'b']
 
     this.matrix = matrix

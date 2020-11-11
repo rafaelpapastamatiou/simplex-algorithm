@@ -92,6 +92,7 @@ const simplex = ({ variables, matrix }: ISimplexProps): ISimplexResponseProps =>
       }
     }
 
+    // PUSH THE CURRENT MATRIX STATE  - PIVOT COLUMN - TO THE HISTORY
     matrixes.push({ variables: _.cloneDeep([...variables]), matrix: _.cloneDeep([...matrix]), entering: minValueOnZIndex })
 
     // FIND PIVOT
@@ -110,7 +111,7 @@ const simplex = ({ variables, matrix }: ISimplexProps): ISimplexResponseProps =>
     // ELSE CONTINUE AND GET PIVOT PROPS
     const { pivot, pivotX, pivotY } = find as IFindPivot
 
-    // PUSH THE CURRENT MATRIX STATE TO HISTORY
+    // PUSH THE CURRENT MATRIX STATE - PIVOT, PIVOT COLUMN AND PIVOT ROW - TO THE HISTORY
     matrixes.push(
       {
         variables: _.cloneDeep([...variables]),
@@ -143,7 +144,7 @@ const simplex = ({ variables, matrix }: ISimplexProps): ISimplexResponseProps =>
       }
     }
 
-    // PUSH THE CURRENT MATRIX STATE TO HISTORY
+    // PUSH THE CURRENT MATRIX STATE TO HISTORY - AFTER GAUSS
     matrixes.push(
       {
         variables: _.cloneDeep([...variables]),
@@ -160,24 +161,31 @@ const simplex = ({ variables, matrix }: ISimplexProps): ISimplexResponseProps =>
   if (counter < maxCounter) {
     result = {}
 
+    // PICK THE LAST MATRIX OF HISTORY (RESULT MATRIX)
     const lastMatrix = matrixes[matrixes.length - 1].matrix
 
+    // FIND THE Z OPTIMAL VALUE
     const optimalValue = lastMatrix[0][lastMatrix[0].length - 1]
 
     const basicVariables: IVariables[] = []
 
     let nonBasicVariables: IVariables[] = []
 
+    // LOOP THROUGH ALL THE ROW OF MATRIX, EXCEPT Z ROW
     for (let i = 1; i < lastMatrix.length; i++) {
+      // LOOP THROUGH ALL THE COLUMNS OF CURRENT ROW, EXCEPT INDEPENDENT TERM COLUMN
       for (let j = 0; j < lastMatrix[i].length - 1; j++) {
+        // IF CURRENT VAR VALUE IS 1 (BASIC VAR) AND DON'T EXISTS ANOTHER VALUE 1 IN SAME ROW ALREADY ON THE ARRAY, PUSH TO BASIC VARIABLES ARRAY
         if (lastMatrix[i][j] === 1 && !lastMatrix[i].find((vVal, vIndex) => vVal === 1 && vIndex !== j && vIndex < j)) {
           basicVariables.push({ name: variables[j], value: lastMatrix[i][lastMatrix[i].length - 1] })
         } else {
+          // INSTEAD PUSH TO NON BASIC VARIABLES ARRAY
           nonBasicVariables.push({ name: variables[j], value: 0 })
         }
       }
     }
 
+    // FILTER TO REMOVE BASIC VARIABLES FROM NON BASIC VARIABLES ARRAY + UNIQUE
     nonBasicVariables = _.uniqBy(nonBasicVariables.filter(nbvar => !basicVariables.find(bvar => bvar.name === nbvar.name)), 'name')
 
     result = {
@@ -186,8 +194,6 @@ const simplex = ({ variables, matrix }: ISimplexProps): ISimplexResponseProps =>
       nonBasicVariables
     }
   }
-
-  console.log('RESULT: ', result)
 
   return {
     matrixes,
