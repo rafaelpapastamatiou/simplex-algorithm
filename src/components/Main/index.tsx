@@ -20,7 +20,7 @@ import Select from '../Select'
 
 import Tableau from '../Tableau'
 
-import { Container, ContentContainer, Error, InitialStep, TableausList } from './styles'
+import { Container, ContentContainer, Error, InitialStep, TableausList, TableauResults } from './styles'
 
 interface ICustomTableauProps {
   matrix: number[][];
@@ -44,6 +44,23 @@ interface IConstraintProps {
   independentTermValue: number | undefined;
 }
 
+interface IVariables {
+  name: string;
+  value: number;
+}
+
+interface IResult {
+  optimalValue?: number;
+  basicVariables?: IVariables[];
+  nonBasicVariables?: IVariables[];
+  unbounded?: boolean;
+}
+
+interface ISolveResponse {
+  matrixes: ICustomTableauProps[];
+  result: null | IResult;
+}
+
 const Main: React.FC = () => {
   const [variablesCount, setVariablesCount] = useState<number | undefined>()
 
@@ -58,6 +75,8 @@ const Main: React.FC = () => {
   const [varCountInputError, setVarCountInputError] = useState<string | null>(null)
 
   const [tableaus, setTableaus] = useState<ICustomTableauProps[]>([])
+
+  const [result, setResult] = useState<IResult | null>()
 
   const handleReset = () => {
     setVariablesCount(undefined)
@@ -197,13 +216,11 @@ const Main: React.FC = () => {
 
     const tableauClone = _.cloneDeep(originTableau)
 
-    const tableauSolveHistory = simplex({ variables: tableauClone.variables, matrix: tableauClone.matrix })
+    const { matrixes: tableauSolveHistory, result }: ISolveResponse = simplex({ variables: tableauClone.variables, matrix: tableauClone.matrix })
+
+    setResult(result)
 
     setTableaus([originTableau, ...tableauSolveHistory])
-
-    console.log('ORIGIN TABLEAU: ', originTableau)
-
-    console.log('SOLVE HISTORY: ', tableauSolveHistory)
 
     setCurrentStep(currentStep + 1)
   }
@@ -296,9 +313,7 @@ const Main: React.FC = () => {
                     ))}
 
                     <Select value={constraint.signal} onChange={(e) => handleChangeConstraint({ type: 'signal', value: e.target.value, constraintIndex: cIndex })} >
-                      <option>{'>='}</option>
                       <option>{'<='}</option>
-                      <option>{'='}</option>
                     </Select>
 
                     <Input
@@ -322,22 +337,49 @@ const Main: React.FC = () => {
         )}
 
         {currentStep === 2 && (
-          <TableausList>
-            {tableaus.map((t: ICustomTableauProps, i: number) => (
-              <Tableau
-                key={i}
-                matrix={t.matrix}
-                variables={t.variables}
-                pivot={t.pivot}
-                entering={t.entering}
-                exiting={t.exiting}
-              />
-            ))}
-          </TableausList>
+          <>
+            {result && (
+              <TableauResults>
+                {
+                  result.unbounded
+                    ? (
+                      <span>Unbounded</span>
+                    )
+                    : (
+                      <>
+                        <span>Optimal value: Z = {result.optimalValue}</span>
+                        <span>Basic variables:</span>
+                        <div>
+                          {result.basicVariables && result.basicVariables.map(bvar => <span key={bvar.name} >{bvar.name} = {bvar.value}</span>)}
+                        </div>
+                        <br />
+                        <span>Non Basic variables:</span>
+                        <div>
+                          {result.nonBasicVariables && result.nonBasicVariables.map(nbvar => <span key={nbvar.name} >{nbvar.name} = {nbvar.value}</span>)}
+                        </div>
+                      </>
+                    )
+                }
+
+              </TableauResults>
+            )}
+            <TableausList>
+              {tableaus.map((t: ICustomTableauProps, i: number) => (
+                <Tableau
+                  key={i}
+                  matrix={t.matrix}
+                  variables={t.variables}
+                  pivot={t.pivot}
+                  entering={t.entering}
+                  exiting={t.exiting}
+                />
+              ))}
+            </TableausList>
+          </>
         )}
 
       </ContentContainer>
-    </Container>
+    </Container >
   )
 }
 

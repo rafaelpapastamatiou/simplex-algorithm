@@ -5,9 +5,12 @@ import { lighten } from 'polished'
 export const Table = styled.table`
   padding: 5px;
   background-color:  ${lighten(0.01, '#191622')} ;
-  margin-top: 20px;
   border-radius: 15px;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+
+  & + table{
+    margin-top: 20px;
+  }
 
   thead, tbody{
     background-color: ${lighten(0.01, '#191622')} ;

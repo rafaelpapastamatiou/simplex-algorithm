@@ -40,7 +40,7 @@ export default class Tableau implements ITableauConstructorProps {
         ]
     }
 
-    // add slack as surplus variables
+    // add slack, surplus and artificial variables
 
     for (const [constraintIndex, constraint] of constraints.entries()) {
       const lastVar = this.variables[this.variables.length - 1]
@@ -56,6 +56,17 @@ export default class Tableau implements ITableauConstructorProps {
       for (const [addToConstraintIndex] of constraints.entries()) {
         if (constraintIndex === addToConstraintIndex) {
           matrix[addToConstraintIndex + 1].push(constraint.signal === '<=' ? 1 : constraint.signal === '>=' ? -1 : 0)
+          //
+          // TODO not working as expected if greater than
+          if (constraint.signal === '>=') {
+            this.variables.push(`x${parseInt(lastVar.slice(1)) + 2}`)
+            matrix[addToConstraintIndex + 1].push(1)
+            matrix[0].push(1)
+            for (const [aConstraintIndex] of constraints.entries()) {
+              if (aConstraintIndex !== addToConstraintIndex + 1 && aConstraintIndex > 0) matrix[aConstraintIndex].push(0)
+            }
+          }
+          //
         } else matrix[addToConstraintIndex + 1].push(0)
       }
     }

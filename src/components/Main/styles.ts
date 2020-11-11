@@ -264,3 +264,34 @@ export const Error = styled.span`
   margin-top: 24px;
   font-size: 18px;
 `
+
+export const TableauResults = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  > span {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+
+    & + span {
+      margin-top: 8px;
+    }
+  }
+
+  > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    span {
+      margin-top: 8px;
+      font-size: 16px;
+      & + span {
+        margin-left: 16px;
+      }
+    }
+  }
+`
