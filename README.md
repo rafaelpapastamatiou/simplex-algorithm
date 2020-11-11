@@ -1,3 +1,6 @@
+## Created using Electron + TypeScript + React Boilerplate by Diego3g
+https://github.com/diego3g/electron-typescript-react
+
 ## Electron + TypeScript + React
 Boilerplate for a project using Electron, React and Typescript
 

@@ -33,11 +33,12 @@
         "ts": "never",
         "tsx": "never"
       }
-    ]
+    ],
+    "space-before-function-paren": "off"
   },
   "settings": {
     "import/resolver": {
-      "typescript": {} 
+      "typescript": {}
     }
   }
 }
